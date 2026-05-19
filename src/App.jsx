@@ -446,7 +446,7 @@ const LoginScreen = ({ usersList, onLogin, onRegister, refreshUsers }) => {
 // ----------------------------------------------------------------------
 const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq, setCloningData, setActiveTab }) => {
   return (
-    <div className="p-4 sm:p-6 lg:p-10 space-y-6 lg:space-y-8 max-w-6xl mx-auto pb-20">
+    <div className="p-4 sm:p-6 lg:p-10 space-y-6 lg:space-y-8 max-w-6xl mx-auto pb-20 w-full overflow-x-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">Dashboard</h1>
@@ -506,7 +506,7 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
                       onClick={() => setPrintingReq(req)}
                       className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all"
                     >
-                      <Printer size={16} /> Print
+                      <FileText size={16} /> PDF
                     </button>
                     <button
                       onClick={() => {
@@ -520,17 +520,17 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6 px-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 mb-6 px-2">
                   {APPROVAL_FLOW.map((role, idx) => {
                     const done = (req.status === "Completed" || idx < stepIndex) && !isRejected;
                     const active = req.status === "Pending" && idx === stepIndex;
                     const rejHere = isRejected && idx === stepIndex;
                     return (
-                      <div key={role} className="space-y-2">
-                        <div className={`h-2 rounded-full transition-all duration-500 ${
+                      <div key={role} className="flex items-center sm:block gap-3 sm:gap-0 sm:space-y-2">
+                        <div className={`h-2 rounded-full transition-all duration-500 flex-1 sm:flex-none sm:w-full ${
                           rejHere ? "bg-red-500 animate-pulse" : done ? "bg-green-500" : active ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-slate-100"
                         }`}></div>
-                        <span className={`block text-[10px] font-bold uppercase tracking-widest ${
+                        <span className={`block text-[10px] font-bold uppercase tracking-widest shrink-0 sm:shrink ${
                           rejHere ? "text-red-600" : done ? "text-green-600" : active ? "text-red-600" : "text-slate-400"
                         }`}>
                           {role}
@@ -1236,33 +1236,85 @@ const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploa
 };
 
 // ----------------------------------------------------------------------
-// 5. PRINT VIEW (เดิมเป๊ะ)
+// 5. PRINT VIEW (Download PDF + Dynamic Signatures)
 // ----------------------------------------------------------------------
 const PrintView = ({ req, onClose }) => {
+  const [downloading, setDownloading] = useState(false);
+
   if (!req) return null;
+
+  // หาคน approve เเต่ละ stage
+  const findApprover = (role) => {
+    const approval = (req.history || []).find(
+      (h) => h.action === "Approved" && h.role === role
+    );
+    if (approval) return approval;
+    // fallback: ดูจาก history เรียงตามลำดับ + match กับ APPROVAL_FLOW
+    return null;
+  };
+
+  // map: role → ใครเป็นคน approve
+  const approversByRole = {};
+  const submittedBy = (req.history || []).find((h) => h.action === "Submitted");
+  if (submittedBy) approversByRole[ROLES.ENGINEER] = submittedBy;
+
+  let flowIdx = 1; // เริ่มจาก Supervisor (Engineer = คนสร้าง)
+  (req.history || []).forEach((h) => {
+    if (h.action === "Approved" && flowIdx < APPROVAL_FLOW.length) {
+      approversByRole[APPROVAL_FLOW[flowIdx]] = h;
+      flowIdx++;
+    }
+  });
+
+  const handleDownloadPDF = async () => {
+    setDownloading(true);
+    try {
+      // โหลด html2pdf ผ่าน CDN dynamically
+      if (!window.html2pdf) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      const element = document.getElementById("print-area");
+      const opt = {
+        margin: 10,
+        filename: `${req.id}_SR_${req.projectName?.split(" ")[0] || "document"}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+      await window.html2pdf().from(element).set(opt).save();
+    } catch (err) {
+      alert("ดาวน์โหลด PDF ไม่สำเร็จ: " + err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[500] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 lg:p-8 overflow-y-auto no-print">
+    <div className="fixed inset-0 z-[500] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 lg:p-8 overflow-y-auto no-print">
       <div className="bg-white w-full max-w-[900px] rounded-2xl shadow-2xl flex flex-col max-h-[96vh] overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h3 className="text-lg font-bold text-slate-900 uppercase">Print Preview - {req.id}</h3>
-          <div className="flex gap-2">
-            <button onClick={() => window.print()} className="bg-red-600 text-white px-6 py-2 rounded-lg font-bold text-sm flex items-center gap-2 shadow-md hover:bg-red-700">
-              <Printer size={16} /> Print
+        <div className="p-3 sm:p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50">
+          <h3 className="text-sm sm:text-lg font-bold text-slate-900 uppercase">Document Preview - {req.id}</h3>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={downloading}
+              className="flex-1 sm:flex-none bg-red-600 text-white px-4 sm:px-6 py-2 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:bg-red-700 disabled:opacity-50"
+            >
+              <FileText size={16} /> {downloading ? "กำลังโหลด..." : "Download PDF"}
             </button>
-            <button onClick={onClose} className="bg-white border border-slate-200 text-slate-600 px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-50">Close</button>
+            <button onClick={onClose} className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 px-4 sm:px-6 py-2 rounded-lg font-bold text-xs sm:text-sm hover:bg-slate-50">
+              Close
+            </button>
           </div>
         </div>
-        <div id="print-area" className="p-8 lg:p-12 overflow-y-auto bg-white text-black font-sans text-xs">
-          <style>{`
-            @media print {
-              body * { visibility: hidden; }
-              #print-area, #print-area * { visibility: visible; }
-              #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
-              .no-print { display: none !important; }
-              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-              th, td { border: 1px solid black !important; padding: 6px !important; font-size: 11px !important; color: black !important; }
-            }
-          `}</style>
+        <div id="print-area" className="p-6 sm:p-8 lg:p-12 overflow-y-auto bg-white text-black font-sans text-xs">
           <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
             <div className="flex items-center gap-4">
               <img src={LOGO_URL} alt="Logo" className="h-12 w-auto" />
@@ -1273,6 +1325,13 @@ const PrintView = ({ req, onClose }) => {
             </div>
             <div className="text-right">
               <div className="text-sm font-mono font-bold text-black">{req.id}</div>
+              <div className={`mt-2 inline-block px-3 py-1 rounded text-[10px] font-black uppercase ${
+                req.status === "Completed" ? "bg-green-100 text-green-700" :
+                req.status === "Rejected" ? "bg-red-100 text-red-700" :
+                "bg-amber-100 text-amber-700"
+              }`}>
+                {req.status}
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-x-8 gap-y-3 mb-6 p-4 rounded-lg border border-black font-bold uppercase text-[10px]">
@@ -1284,31 +1343,64 @@ const PrintView = ({ req, onClose }) => {
             <div><strong>Contact:</strong> {req.phone}</div>
             <div className="col-span-2"><strong>Location:</strong> {req.projectLocation || "-"}</div>
           </div>
-          <table>
+          <table className="w-full border-collapse">
             <thead className="bg-slate-100 font-bold uppercase text-[10px]">
-              <tr><th className="w-8">#</th><th className="w-32">Material No.</th><th className="text-left">Description</th><th className="w-24 text-center">Qty/UOM</th></tr>
+              <tr>
+                <th className="w-8 border border-black p-1.5">#</th>
+                <th className="w-32 border border-black p-1.5">Material No.</th>
+                <th className="text-left border border-black p-1.5">Description</th>
+                <th className="w-24 text-center border border-black p-1.5">Qty/UOM</th>
+              </tr>
             </thead>
             <tbody>
               {req.items.map((item, idx) => (
                 <tr key={idx}>
-                  <td className="text-center">{idx + 1}</td>
-                  <td className="font-mono text-center">{item?.code || "-"}</td>
-                  <td>
+                  <td className="text-center border border-black p-1.5">{idx + 1}</td>
+                  <td className="font-mono text-center border border-black p-1.5">{item?.code || "-"}</td>
+                  <td className="border border-black p-1.5">
                     <div>{item?.name || "-"}</div>
                     <div className="text-[9px] opacity-70 italic">{item?.brand} {item?.model}</div>
                   </td>
-                  <td className="text-center">{item?.qty} {item?.uom}</td>
+                  <td className="text-center border border-black p-1.5">{item?.qty} {item?.uom}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="grid grid-cols-3 gap-8 mt-16 text-center font-bold uppercase text-[10px]">
-            <div>
-              <div className="h-12 border-b border-black flex items-end justify-center pb-1 italic font-serif">{req.history?.[0]?.by || "-"}</div>
-              <div className="mt-1">Requested By</div>
+
+          {/* Dynamic Signatures - 5 ขั้นตาม Approval Flow */}
+          <div className="mt-12">
+            <div className="text-[10px] font-black uppercase tracking-widest mb-3 text-slate-600 border-b border-slate-300 pb-2">
+              Approval Signatures
             </div>
-            <div><div className="h-12 border-b border-black"></div><div className="mt-1">Reviewed By</div></div>
-            <div><div className="h-12 border-b border-black"></div><div className="mt-1">Approved By</div></div>
+            <div className="grid grid-cols-5 gap-3 text-center font-bold uppercase text-[9px]">
+              {APPROVAL_FLOW.map((role) => {
+                const approval = approversByRole[role];
+                return (
+                  <div key={role}>
+                    <div className="h-14 border-b border-black flex flex-col items-center justify-end pb-1">
+                      {approval ? (
+                        <>
+                          <div className="italic font-serif text-[11px] normal-case">
+                            {approval.by}
+                          </div>
+                          <div className="text-[8px] text-slate-500 normal-case mt-0.5">
+                            {approval.date}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-slate-300 text-[8px]">รอดำเนินการ</div>
+                      )}
+                    </div>
+                    <div className="mt-2 text-[8px] leading-tight">{role}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-4 border-t border-slate-200 text-[9px] text-slate-400 text-center">
+            Generated by KPH Sourcing System • {new Date().toLocaleString("th-TH")}
           </div>
         </div>
       </div>
@@ -1499,6 +1591,7 @@ export default function App() {
       history: [{
         action: "Submitted",
         by: currentUser?.name || "Unknown",
+        role: currentUser?.role || ROLES.ENGINEER,
         date: new Date().toLocaleString(),
       }],
     };
@@ -1524,7 +1617,7 @@ export default function App() {
     const newStatus = nextRole ? "Pending" : "Completed";
     const newHistory = [
       ...(req.history || []),
-      { action: "Approved", by: currentUser?.name || "Unknown", date: new Date().toLocaleString() },
+      { action: "Approved", by: currentUser?.name || "Unknown", role: currentUser?.role || "", date: new Date().toLocaleString() },
     ];
 
     const { error } = await supabase
@@ -1546,7 +1639,7 @@ export default function App() {
     if (!req) return;
     const newHistory = [
       ...(req.history || []),
-      { action: "Rejected", by: currentUser?.name || "Unknown", date: new Date().toLocaleString() },
+      { action: "Rejected", by: currentUser?.name || "Unknown", role: currentUser?.role || "", date: new Date().toLocaleString() },
     ];
     const { error } = await supabase
       .from("sourcing_requests")
