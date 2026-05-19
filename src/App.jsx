@@ -203,8 +203,7 @@ function md5(string) {
 }
 
 // --- CONFIG & INITIAL DATA ---
-const LOGO_URL =
-  "https://kasetphandgroup.com/wp-content/uploads/2024/08/kasetphand-group.png";
+const LOGO_URL = "/logo.png";
 
 const ROLES = {
   ENGINEER: "Engineer Onsite (Philippines)",
@@ -560,15 +559,15 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
                   <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-100 mt-4 bg-slate-50/50 -mx-6 -mb-6 lg:-mx-8 lg:-mb-8 p-6 lg:p-8 rounded-b-3xl">
                     <button
                       onClick={() => onApprove(req.id)}
-                      className="flex-[2] bg-red-600 text-white py-3.5 rounded-xl font-black text-sm uppercase shadow-md hover:bg-red-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                      className="flex-[2] bg-green-600 text-white py-3.5 rounded-xl font-black text-sm uppercase shadow-md shadow-green-200 hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                       <CheckCircle size={18} /> Approve & Forward
                     </button>
                     <button
                       onClick={() => onReject(req.id)}
-                      className="flex-1 bg-white border-2 border-red-200 text-red-600 py-3.5 rounded-xl font-black text-sm uppercase hover:bg-red-50 transition-all active:scale-95"
+                      className="flex-1 bg-white border-2 border-red-300 text-red-600 py-3.5 rounded-xl font-black text-sm uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
-                      Reject
+                      <XCircle size={18} /> Reject
                     </button>
                   </div>
                 )}
@@ -1256,17 +1255,23 @@ const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploa
 // ----------------------------------------------------------------------
 const PrintView = ({ req, onClose }) => {
   const [downloading, setDownloading] = useState(false);
+  const [logoBase64, setLogoBase64] = useState(LOGO_URL);
 
-  // KASETPHAND Logo เป็น SVG inline (ไม่ต้อง fetch → ไม่ติด CORS)
-  const KasetphandLogo = ({ className = "h-12 w-auto" }) => (
-    <svg viewBox="0 0 200 100" className={className} xmlns="http://www.w3.org/2000/svg">
-      <rect width="100" height="100" fill="#DC2626" rx="8"/>
-      <path d="M 25 25 L 25 75 L 35 75 L 35 55 L 50 75 L 65 75 L 45 50 L 65 25 L 50 25 L 35 45 L 35 25 Z" fill="white"/>
-      <text x="50" y="92" textAnchor="middle" fill="white" fontSize="10" fontWeight="900" fontFamily="Arial">KASETPHAND</text>
-      <text x="115" y="50" fill="#0F172A" fontSize="22" fontWeight="900" fontFamily="Arial">KPH</text>
-      <text x="115" y="72" fill="#64748B" fontSize="10" fontWeight="700" fontFamily="Arial">GROUP</text>
-    </svg>
-  );
+  // โหลด logo เป็น base64 ตอน mount เพื่อให้ html2canvas ใช้ได้
+  useEffect(() => {
+    const loadLogo = async () => {
+      try {
+        const response = await fetch(LOGO_URL);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => setLogoBase64(reader.result);
+        reader.readAsDataURL(blob);
+      } catch (e) {
+        console.warn("Logo preload failed", e);
+      }
+    };
+    loadLogo();
+  }, []);
 
   if (!req) return null;
 
@@ -1305,12 +1310,42 @@ const PrintView = ({ req, onClose }) => {
         });
       }
 
+      // รอให้ logo โหลดเป็น base64 เสร็จก่อน (ถ้ายังไม่เสร็จ)
+      let finalLogo = logoBase64;
+      if (!finalLogo.startsWith("data:")) {
+        try {
+          const response = await fetch(LOGO_URL);
+          const blob = await response.blob();
+          finalLogo = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+        } catch (e) {
+          console.warn("Logo fetch failed", e);
+        }
+      }
+
       const element = document.getElementById("print-area");
       const opt = {
         margin: 10,
         filename: `${req.id}_SR_${req.projectName?.split(" ")[0] || "document"}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          onclone: (clonedDoc) => {
+            // เเทน logo ใน cloned DOM ด้วย base64
+            const imgs = clonedDoc.querySelectorAll("img");
+            imgs.forEach((img) => {
+              if (img.alt === "Logo") {
+                img.src = finalLogo;
+              }
+            });
+          },
+        },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
       await window.html2pdf().from(element).set(opt).save();
@@ -1342,7 +1377,11 @@ const PrintView = ({ req, onClose }) => {
         <div id="print-area" className="p-6 sm:p-8 lg:p-12 overflow-y-auto bg-white text-black font-sans text-xs">
           <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
             <div className="flex items-center gap-4">
-              <KasetphandLogo className="h-12 w-auto" />
+              <img
+                src={logoBase64}
+                alt="Logo"
+                style={{ height: "80px", width: "auto", objectFit: "contain", display: "block" }}
+              />
               <div>
                 <h1 className="text-xl font-black uppercase">Kasetphand Group</h1>
                 <p className="text-[10px] font-bold uppercase mt-0.5">Sourcing Requisition (SR)</p>
