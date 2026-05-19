@@ -203,7 +203,8 @@ function md5(string) {
 }
 
 // --- CONFIG & INITIAL DATA ---
-const LOGO_URL = "/logo.png";
+const LOGO_URL =
+  "https://kasetphandgroup.com/wp-content/uploads/2024/08/kasetphand-group.png";
 
 const ROLES = {
   ENGINEER: "Engineer Onsite (Philippines)",
@@ -441,15 +442,15 @@ const LoginScreen = ({ usersList, onLogin, onRegister, refreshUsers }) => {
 };
 
 // ----------------------------------------------------------------------
-// 2. DASHBOARD COMPONENT (แก้ไขเพื่อให้รองรับจอ Mobile พอดีสวยงาม)
+// 2. DASHBOARD COMPONENT
 // ----------------------------------------------------------------------
 const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq, setCloningData, setActiveTab }) => {
   return (
-    <div className="p-3 sm:p-6 lg:p-10 space-y-6 lg:space-y-8 max-w-6xl mx-auto pb-20 w-full box-border">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-1">
+    <div className="p-4 sm:p-6 lg:p-10 space-y-6 lg:space-y-8 max-w-6xl mx-auto pb-20 w-full overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">Dashboard</h1>
-          <p className="text-[11px] sm:text-sm text-slate-500 font-medium mt-0.5">ติดตามและอนุมัติใบเสนอราคาโครงการ</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">ติดตามและอนุมัติใบเสนอราคาโครงการ</p>
         </div>
         <button
           onClick={() => setActiveTab("request")}
@@ -459,11 +460,11 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
         </button>
       </div>
 
-      <div className="grid gap-4 sm:gap-6 w-full">
+      <div className="grid gap-6">
         {requests.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 sm:p-20 text-center border-2 border-dashed border-slate-200 mx-1">
-            <FileText className="mx-auto text-slate-200 mb-4 sm:mb-6" size={60} />
-            <p className="text-xl font-black text-slate-300 uppercase tracking-widest">No Requests</p>
+          <div className="bg-white rounded-3xl p-20 text-center border-2 border-dashed border-slate-200">
+            <FileText className="mx-auto text-slate-200 mb-6" size={80} />
+            <p className="text-2xl font-black text-slate-300 uppercase tracking-widest">No Requests</p>
           </div>
         ) : (
           requests.map((req) => {
@@ -474,90 +475,98 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
             return (
               <div
                 key={req.id}
-                className={`bg-white rounded-xl sm:rounded-3xl border p-4 sm:p-6 lg:p-8 transition-all duration-300 mx-1 box-border overflow-hidden ${
-                  isMyTurn ? "border-red-500 shadow-lg ring-[3px] ring-red-50" : "border-slate-100 shadow-sm"
+                className={`bg-white rounded-2xl lg:rounded-3xl border p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
+                  isMyTurn ? "border-red-500 shadow-xl ring-[4px] ring-red-50" : "border-slate-100 shadow-sm"
                 }`}
               >
-                {/* Header Section */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-                  <div className="flex gap-3 sm:gap-5 items-start sm:items-center w-full lg:w-auto min-w-0">
-                    <div className={`w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-sm sm:text-2xl shadow-inner shrink-0 ${
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-6 lg:mb-8">
+                  <div className="flex gap-3 sm:gap-5 items-center w-full lg:w-auto">
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-lg sm:text-2xl shadow-inner shrink-0 ${
                       isRejected ? "bg-red-50 text-red-600" : req.status === "Completed" ? "bg-green-50 text-green-600" : "bg-slate-50 text-slate-600"
                     }`}>
-                      {isRejected ? <XCircle size={20} /> : req.status === "Completed" ? <CheckCircle size={20} /> : <span>SR</span>}
+                      {isRejected ? <XCircle size={24} className="sm:hidden" /> : req.status === "Completed" ? <CheckCircle size={24} className="sm:hidden" /> : <span className="sm:hidden">SR</span>}
+                      {isRejected ? <XCircle size={32} className="hidden sm:inline" /> : req.status === "Completed" ? <CheckCircle size={32} className="hidden sm:inline" /> : <span className="hidden sm:inline">SR</span>}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                        <h3 className="text-sm sm:text-xl font-black text-slate-900 break-words leading-tight">
-                          {req.projectName}
-                        </h3>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <h3 className="text-base sm:text-xl font-black text-slate-900 truncate">{req.projectName}</h3>
                         {isRejected && (
-                          <span className="w-fit bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest shrink-0 mt-1 sm:mt-0">
-                            Rejected
-                          </span>
+                          <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-widest shrink-0">Rejected</span>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:text-xs font-semibold text-slate-500 mt-2">
-                        <span className="text-red-600 bg-red-50 px-1.5 py-0.5 rounded font-mono text-[9px] sm:text-xs">{req.id}</span>
-                        <span className="flex items-center gap-0.5 truncate"><User size={10} /> {req.requestor}</span>
-                        <span className="flex items-center gap-0.5"><Calendar size={10} /> {req.date}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-semibold text-slate-500 mt-2">
+                        <span className="text-red-600 bg-red-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md font-mono">{req.id}</span>
+                        <span className="flex items-center gap-1"><User size={12} /> {req.requestor}</span>
+                        <span className="flex items-center gap-1"><Calendar size={12} /> {req.date}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 w-full lg:w-auto pt-2 lg:pt-0 border-t border-slate-50 lg:border-none">
+                  <div className="flex gap-3 w-full lg:w-auto">
                     <button
                       onClick={() => setPrintingReq(req)}
-                      className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all"
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all"
                     >
-                      <FileText size={14} /> PDF
+                      <FileText size={16} /> PDF
                     </button>
                     <button
                       onClick={() => {
                         setCloningData(req);
                         setActiveTab("request");
                       }}
-                      className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all"
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all"
                     >
-                      <Copy size={14} /> Clone
+                      <Copy size={16} /> Clone
                     </button>
                   </div>
                 </div>
 
-                {/* Progress Steps Section */}
-                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 bg-slate-50/50 p-3 rounded-xl border border-slate-100 sm:bg-transparent sm:p-0 sm:border-none sm:grid">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 mb-6">
                   {APPROVAL_FLOW.map((role, idx) => {
                     const done = (req.status === "Completed" || idx < stepIndex) && !isRejected;
                     const active = req.status === "Pending" && idx === stepIndex;
                     const rejHere = isRejected && idx === stepIndex;
                     return (
-                      <div key={role} className="flex items-center gap-3 sm:block sm:space-y-2 w-full">
-                        <div className={`h-2.5 w-2.5 sm:h-2 sm:w-full rounded-full transition-all duration-500 shrink-0 ${
-                          rejHere ? "bg-red-500 animate-pulse" : done ? "bg-green-500" : active ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-slate-200"
+                      <div key={role} className="flex items-center gap-3 sm:block sm:space-y-2">
+                        {/* Mobile: เเถบสีอยู่ซ้าย / Desktop: อยู่บน */}
+                        <div className={`h-2 w-12 sm:w-full rounded-full transition-all duration-500 shrink-0 ${
+                          rejHere
+                            ? "bg-red-500"
+                            : done
+                            ? "bg-green-500"
+                            : active
+                            ? "bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_8px_rgba(251,146,60,0.5)] animate-pulse"
+                            : "bg-slate-200"
                         }`}></div>
-                        <span className={`text-[10px] font-bold uppercase tracking-wide leading-tight block truncate ${
-                          rejHere ? "text-red-600" : done ? "text-green-600" : active ? "text-red-600 font-black" : "text-slate-400"
+                        <span className={`flex-1 text-[10px] font-bold uppercase tracking-widest leading-tight flex items-center gap-1 ${
+                          rejHere
+                            ? "text-red-600"
+                            : done
+                            ? "text-green-600"
+                            : active
+                            ? "text-orange-600"
+                            : "text-slate-400"
                         }`}>
-                          {role}
+                          {done && <span>✓</span>}
+                          {active && <span className="animate-pulse">⏰</span>}
+                          {rejHere && <span>✗</span>}
+                          <span>{role}</span>
                         </span>
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Approval Action Form (แก้ไขจุดล้นขอบจอจุดสำคัญที่สุด) */}
                 {isMyTurn && (
-                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 mt-4 border-t border-slate-100 w-full">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-100 mt-4 bg-slate-50/50 -mx-6 -mb-6 lg:-mx-8 lg:-mb-8 p-6 lg:p-8 rounded-b-3xl">
                     <button
                       onClick={() => onApprove(req.id)}
-                      className="w-full sm:flex-[2] bg-red-600 text-white py-3 rounded-xl font-black text-xs sm:text-sm uppercase shadow-md hover:bg-red-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      className="flex-[2] bg-red-600 text-white py-3.5 rounded-xl font-black text-sm uppercase shadow-md hover:bg-red-700 active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
-                      <CheckCircle size={16} /> Approve & Forward
+                      <CheckCircle size={18} /> Approve & Forward
                     </button>
                     <button
                       onClick={() => onReject(req.id)}
-                      className="w-full sm:flex-1 bg-white border border-red-200 text-red-600 py-3 rounded-xl font-black text-xs sm:text-sm uppercase hover:bg-red-50 active:scale-[0.98] transition-all"
+                      className="flex-1 bg-white border-2 border-red-200 text-red-600 py-3.5 rounded-xl font-black text-sm uppercase hover:bg-red-50 transition-all active:scale-95"
                     >
                       Reject
                     </button>
@@ -573,7 +582,7 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
 };
 
 // ----------------------------------------------------------------------
-// 3. SOURCING FORM COMPONENT
+// 3. SOURCING FORM COMPONENT (UI เดิมเป๊ะ)
 // ----------------------------------------------------------------------
 const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, onSave, onCancel, cloningData, notify }) => {
   const [header, setHeader] = useState({
@@ -1056,7 +1065,7 @@ const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, on
 };
 
 // ----------------------------------------------------------------------
-// 4. DATABASE MANAGER
+// 4. DATABASE MANAGER (UI เดิม + Save to Supabase)
 // ----------------------------------------------------------------------
 const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploadProjects, notify }) => {
   const itemInputRef = useRef(null);
@@ -1243,10 +1252,21 @@ const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploa
 };
 
 // ----------------------------------------------------------------------
-// 5. PRINT VIEW (เวอร์ชันฝังโค้ดกราฟิก SVG ดึงรูปขึ้น 100% ทุกแพลตฟอร์ม)
+// 5. PRINT VIEW (Download PDF + Dynamic Signatures)
 // ----------------------------------------------------------------------
 const PrintView = ({ req, onClose }) => {
   const [downloading, setDownloading] = useState(false);
+
+  // KASETPHAND Logo เป็น SVG inline (ไม่ต้อง fetch → ไม่ติด CORS)
+  const KasetphandLogo = ({ className = "h-12 w-auto" }) => (
+    <svg viewBox="0 0 200 100" className={className} xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#DC2626" rx="8"/>
+      <path d="M 25 25 L 25 75 L 35 75 L 35 55 L 50 75 L 65 75 L 45 50 L 65 25 L 50 25 L 35 45 L 35 25 Z" fill="white"/>
+      <text x="50" y="92" textAnchor="middle" fill="white" fontSize="10" fontWeight="900" fontFamily="Arial">KASETPHAND</text>
+      <text x="115" y="50" fill="#0F172A" fontSize="22" fontWeight="900" fontFamily="Arial">KPH</text>
+      <text x="115" y="72" fill="#64748B" fontSize="10" fontWeight="700" fontFamily="Arial">GROUP</text>
+    </svg>
+  );
 
   if (!req) return null;
 
@@ -1256,7 +1276,6 @@ const PrintView = ({ req, onClose }) => {
       (h) => h.action === "Approved" && h.role === role
     );
     if (approval) return approval;
-    // fallback: ดูจาก history เรียงตามลำดับ + match กับ APPROVAL_FLOW
     return null;
   };
 
@@ -1265,7 +1284,7 @@ const PrintView = ({ req, onClose }) => {
   const submittedBy = (req.history || []).find((h) => h.action === "Submitted");
   if (submittedBy) approversByRole[ROLES.ENGINEER] = submittedBy;
 
-  let flowIdx = 1; // เริ่มจาก Supervisor (Engineer = คนสร้าง)
+  let flowIdx = 1;
   (req.history || []).forEach((h) => {
     if (h.action === "Approved" && flowIdx < APPROVAL_FLOW.length) {
       approversByRole[APPROVAL_FLOW[flowIdx]] = h;
@@ -1276,7 +1295,6 @@ const PrintView = ({ req, onClose }) => {
   const handleDownloadPDF = async () => {
     setDownloading(true);
     try {
-      // โหลด html2pdf ผ่าน CDN dynamically
       if (!window.html2pdf) {
         await new Promise((resolve, reject) => {
           const script = document.createElement("script");
@@ -1285,25 +1303,6 @@ const PrintView = ({ req, onClose }) => {
           script.onerror = reject;
           document.head.appendChild(script);
         });
-      }
-
-      // โหลด logo เป็น base64 ก่อน เพื่อป้องกัน CORS
-      const logoImg = document.getElementById("pdf-logo");
-      if (logoImg && !logoImg.src.startsWith("data:")) {
-        try {
-          const response = await fetch(LOGO_URL, { mode: "cors" });
-          const blob = await response.blob();
-          const base64 = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
-          });
-          logoImg.src = base64;
-          // รอให้ภาพโหลดเสร็จก่อน
-          await new Promise((r) => setTimeout(r, 200));
-        } catch (e) {
-          console.warn("Logo load failed, using text fallback");
-        }
       }
 
       const element = document.getElementById("print-area");
@@ -1343,7 +1342,7 @@ const PrintView = ({ req, onClose }) => {
         <div id="print-area" className="p-6 sm:p-8 lg:p-12 overflow-y-auto bg-white text-black font-sans text-xs">
           <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
             <div className="flex items-center gap-4">
-              <img id="pdf-logo" src={LOGO_URL} alt="Logo" crossOrigin="anonymous" className="h-12 w-auto" />
+              <KasetphandLogo className="h-12 w-auto" />
               <div>
                 <h1 className="text-xl font-black uppercase">Kasetphand Group</h1>
                 <p className="text-[10px] font-bold uppercase mt-0.5">Sourcing Requisition (SR)</p>
@@ -1393,7 +1392,6 @@ const PrintView = ({ req, onClose }) => {
             </tbody>
           </table>
 
-          {/* Dynamic Signatures - 5 ขั้นตาม Approval Flow */}
           <div className="mt-12">
             <div className="text-[10px] font-black uppercase tracking-widest mb-3 text-slate-600 border-b border-slate-300 pb-2">
               Approval Signatures
@@ -1424,7 +1422,6 @@ const PrintView = ({ req, onClose }) => {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="mt-8 pt-4 border-t border-slate-200 text-[9px] text-slate-400 text-center">
             Generated by KPH Sourcing System • {new Date().toLocaleString("th-TH")}
           </div>
@@ -1468,6 +1465,7 @@ async function registerUser({ name, role, pin }) {
   return data;
 }
 
+// Convert DB row → app object
 function rowToRequest(row) {
   return {
     id: row.id,
@@ -1525,12 +1523,38 @@ export default function App() {
   const [printingReq, setPrintingReq] = useState(null);
   const [cloningData, setCloningData] = useState(null);
   const [message, setMessage] = useState(null);
+  const [showNotif, setShowNotif] = useState(false);
+
+  // คำนวณ notifications สำหรับ currentUser
+  const notifications = useMemo(() => {
+    if (!currentUser) return { pending: [], recent: [] };
+
+    // 1. รออนุมัติ (currentStage = role + Pending)
+    const pending = requests.filter(
+      (r) => r.status === "Pending" && r.currentStage === currentUser.role
+    );
+
+    // 2. Approve/Reject ล่าสุดจาก SR ที่เราเคยเกี่ยวข้อง (เป็นคนสร้าง หรือ approve)
+    const recent = requests
+      .filter((r) => {
+        if (r.status === "Pending") return false;
+        const myActions = (r.history || []).filter(
+          (h) => h.by === currentUser.name
+        );
+        return myActions.length > 0 && (r.status === "Completed" || r.status === "Rejected");
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
+
+    return { pending, recent };
+  }, [requests, currentUser]);
 
   const notify = (text, type = "info") => {
     setMessage({ text: String(text), type });
     setTimeout(() => setMessage(null), 4000);
   };
 
+  // Load initial data
   const refreshUsers = async () => {
     try {
       const data = await loadUsers();
@@ -1576,9 +1600,17 @@ export default function App() {
       refreshRequests();
       refreshMaterials();
       refreshProjects();
+
+      // Auto-refresh ทุก 15 วินาที เพื่อให้ notification อัพเดทเเบบ realtime
+      const interval = setInterval(() => {
+        refreshRequests();
+      }, 15000);
+
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
 
+  // Login handlers
   const handleLogin = async (userId, pin) => {
     const user = await loginUser(userId, pin);
     if (user) {
@@ -1592,6 +1624,7 @@ export default function App() {
     return await registerUser(data);
   };
 
+  // Save Request → Supabase
   const handleSaveRequest = async (header, items) => {
     const prefix = `SR-${new Date().getFullYear().toString().slice(-2)}${(new Date().getMonth() + 1).toString().padStart(2, "0")}-`;
     const srId = `${prefix}${String(requests.filter((r) => r.id.startsWith(prefix)).length + 1).padStart(3, "0")}`;
@@ -1629,6 +1662,7 @@ export default function App() {
     notify(`สร้าง SR เลขที่ ${srId} สำเร็จ!`, "success");
   };
 
+  // Approve → Supabase
   const handleApprove = async (id) => {
     const req = requests.find((r) => r.id === id);
     if (!req) return;
@@ -1653,6 +1687,7 @@ export default function App() {
     notify("อนุมัติสำเร็จ", "success");
   };
 
+  // Reject → Supabase
   const handleReject = async (id) => {
     if (!window.confirm("คุณต้องการปฏิเสธรายการนี้ใช่หรือไม่?")) return;
     const req = requests.find((r) => r.id === id);
@@ -1673,6 +1708,7 @@ export default function App() {
     notify("ปฏิเสธสำเร็จ", "error");
   };
 
+  // Upload Materials → Supabase
   const handleUploadItems = async (items) => {
     if (!items.length) return;
     const { error } = await supabase.from("materials_db").upsert(items, { onConflict: "code" });
@@ -1684,6 +1720,7 @@ export default function App() {
     notify(`✅ นำเข้าข้อมูลสินค้าสำเร็จ ${items.length} รายการ`, "success");
   };
 
+  // Upload Projects → Supabase
   const handleUploadProjects = async (projects) => {
     if (!projects.length) return;
     const { error } = await supabase.from("projects_db").upsert(projects, { onConflict: "code" });
@@ -1707,7 +1744,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-900 overflow-x-hidden selection:bg-red-100 selection:text-red-900 w-full box-border">
+    <div className="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-900 overflow-x-hidden selection:bg-red-100 selection:text-red-900">
       {message && (
         <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[1000] px-6 py-3 rounded-full shadow-lg text-white font-bold text-sm uppercase flex items-center gap-2 transition-all ${
           message.type === "error" ? "bg-red-600" : message.type === "success" ? "bg-green-600" : "bg-slate-800"
@@ -1773,28 +1810,144 @@ export default function App() {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative w-full box-border">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-[70] no-print shadow-sm w-full box-border">
-          <div className="flex items-center gap-3 min-w-0">
-            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-md shrink-0">
-              <Menu size={22} />
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-[70] no-print shadow-sm">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-md">
+              <Menu size={24} />
             </button>
-            <h2 className="text-sm sm:text-lg font-black text-slate-900 uppercase tracking-widest truncate">{activeTab}</h2>
+            <h2 className="text-lg font-black text-slate-900 uppercase tracking-widest">{activeTab}</h2>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
               <p className="text-[10px] font-bold text-slate-400 uppercase">KPGreenergy</p>
               <p className="text-sm font-black text-red-600 uppercase leading-none mt-0.5">Sourcing V4.0</p>
             </div>
-            <div className="w-px h-8 bg-slate-200 mx-1 sm:mx-2 hidden sm:block"></div>
-            <button className="p-2 text-slate-400 hover:text-red-600 relative transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-600 rounded-full border-2 border-white"></span>
-            </button>
+            <div className="w-px h-8 bg-slate-200 mx-2"></div>
+
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotif(!showNotif)}
+                className="p-2 text-slate-400 hover:text-red-600 relative transition-colors"
+              >
+                <Bell size={20} />
+                {notifications.pending.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-600 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 border-2 border-white animate-pulse">
+                    {notifications.pending.length}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown */}
+              {showNotif && (
+                <>
+                  <div
+                    className="fixed inset-0 z-[90]"
+                    onClick={() => setShowNotif(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[100] overflow-hidden max-h-[80vh] flex flex-col">
+                    <div className="p-4 border-b border-slate-100 bg-gradient-to-r from-red-600 to-red-700 text-white">
+                      <h3 className="font-black text-sm uppercase tracking-widest">การเเจ้งเตือน</h3>
+                      <p className="text-[10px] opacity-90 mt-0.5">
+                        {notifications.pending.length} รายการรอคุณดำเนินการ
+                      </p>
+                    </div>
+
+                    <div className="overflow-y-auto flex-1">
+                      {/* รออนุมัติ */}
+                      {notifications.pending.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-red-50 text-red-700 text-[10px] font-black uppercase tracking-widest border-b border-red-100">
+                            🔴 รอคุณอนุมัติ ({notifications.pending.length})
+                          </div>
+                          {notifications.pending.map((req) => (
+                            <button
+                              key={req.id}
+                              onClick={() => {
+                                setShowNotif(false);
+                                setActiveTab("dashboard");
+                                // Scroll to top
+                                setTimeout(() => window.scrollTo(0, 0), 100);
+                              }}
+                              className="w-full text-left p-3 hover:bg-red-50 transition-colors border-b border-slate-50 flex gap-3 items-start"
+                            >
+                              <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 shrink-0 animate-pulse"></div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-mono text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                                    {req.id}
+                                  </span>
+                                </div>
+                                <p className="text-xs font-bold text-slate-800 truncate">
+                                  {req.projectName}
+                                </p>
+                                <p className="text-[10px] text-slate-500 mt-0.5">
+                                  จาก: {req.requestor} • {req.date}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Approve/Reject ล่าสุด */}
+                      {notifications.recent.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-widest border-b border-slate-100">
+                            📋 อัพเดทล่าสุด
+                          </div>
+                          {notifications.recent.map((req) => (
+                            <button
+                              key={req.id}
+                              onClick={() => {
+                                setShowNotif(false);
+                                setPrintingReq(req);
+                              }}
+                              className="w-full text-left p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 flex gap-3 items-start"
+                            >
+                              <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                                req.status === "Completed" ? "bg-green-500" : "bg-red-400"
+                              }`}></div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-mono text-[10px] font-black text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+                                    {req.id}
+                                  </span>
+                                  <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${
+                                    req.status === "Completed" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                                  }`}>
+                                    {req.status}
+                                  </span>
+                                </div>
+                                <p className="text-xs font-bold text-slate-800 truncate">
+                                  {req.projectName}
+                                </p>
+                                <p className="text-[10px] text-slate-400 mt-0.5">
+                                  {req.history?.[req.history.length - 1]?.date || ""}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Empty state */}
+                      {notifications.pending.length === 0 && notifications.recent.length === 0 && (
+                        <div className="p-10 text-center">
+                          <Bell className="mx-auto text-slate-200 mb-3" size={40} />
+                          <p className="text-xs font-bold text-slate-400">ไม่มีการเเจ้งเตือน</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50/50 p-0 w-full box-border">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50/50 p-0">
           {activeTab === "dashboard" && (
             <Dashboard
               requests={requests}
@@ -1833,7 +1986,7 @@ export default function App() {
       <PrintView req={printingReq} onClose={() => setPrintingReq(null)} />
 
       <style>{`
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
