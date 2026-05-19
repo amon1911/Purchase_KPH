@@ -1535,23 +1535,43 @@ async function loadRequests() {
 }
 
 async function loadMaterials() {
-  const { data, error } = await supabase
-    .from("materials_db")
-    .select("*")
-    .order("code")
-    .range(0, 49999); // ดึงได้สูงสุด 50,000 รายการ
-  if (error) throw error;
-  return data || [];
+  let allData = [];
+  let from = 0;
+  const batchSize = 1000;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("materials_db")
+      .select("*")
+      .order("code")
+      .range(from, from + batchSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    allData = [...allData, ...data];
+    if (data.length < batchSize) break;
+    from += batchSize;
+  }
+  return allData;
 }
 
 async function loadProjects() {
-  const { data, error } = await supabase
-    .from("projects_db")
-    .select("*")
-    .order("code")
-    .range(0, 49999);
-  if (error) throw error;
-  return data || [];
+  let allData = [];
+  let from = 0;
+  const batchSize = 1000;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("projects_db")
+      .select("*")
+      .order("code")
+      .range(from, from + batchSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    allData = [...allData, ...data];
+    if (data.length < batchSize) break;
+    from += batchSize;
+  }
+  return allData;
 }
 
 // ----------------------------------------------------------------------
