@@ -284,12 +284,12 @@ const LoginScreen = ({ usersList, onLogin, onRegister, refreshUsers }) => {
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans overflow-hidden w-full">
-      <div className="bg-white p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full max-w-md border-t-[8px] border-red-600 animate-slide-down">
-        <div className="flex justify-center mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-          <img src={LOGO_URL} alt="Logo" className="h-16 object-contain" />
+      <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full max-w-md border-t-[8px] border-red-600 animate-slide-down">
+        <div className="flex justify-center mb-6 sm:mb-8 bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-100">
+          <img src={LOGO_URL} alt="Logo" className="h-12 sm:h-16 object-contain" />
         </div>
 
-        <h2 className="text-3xl font-black text-center text-slate-900 mb-2 tracking-tight uppercase">
+        <h2 className="text-2xl sm:text-3xl font-black text-center text-slate-900 mb-2 tracking-tight uppercase">
           {isRegistering ? "Create Account" : "KPH Sourcing"}
         </h2>
         <p className="text-slate-500 text-center mb-8 text-sm font-bold tracking-widest">
@@ -446,15 +446,15 @@ const LoginScreen = ({ usersList, onLogin, onRegister, refreshUsers }) => {
 // ----------------------------------------------------------------------
 const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq, setCloningData, setActiveTab }) => {
   return (
-    <div className="p-6 lg:p-10 space-y-8 max-w-6xl mx-auto pb-20">
+    <div className="p-4 sm:p-6 lg:p-10 space-y-6 lg:space-y-8 max-w-6xl mx-auto pb-20">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Dashboard</h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">ติดตามและอนุมัติใบเสนอราคาโครงการ</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">ติดตามและอนุมัติใบเสนอราคาโครงการ</p>
         </div>
         <button
           onClick={() => setActiveTab("request")}
-          className="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-red-200 hover:bg-red-700 transition-all uppercase tracking-wider"
+          className="w-full sm:w-auto bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-200 hover:bg-red-700 transition-all uppercase tracking-wider"
         >
           <Plus size={18} /> New Request
         </button>
@@ -475,28 +475,29 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
             return (
               <div
                 key={req.id}
-                className={`bg-white rounded-3xl border p-6 lg:p-8 transition-all duration-300 ${
+                className={`bg-white rounded-2xl lg:rounded-3xl border p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
                   isMyTurn ? "border-red-500 shadow-xl ring-[4px] ring-red-50" : "border-slate-100 shadow-sm"
                 }`}
               >
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-                  <div className="flex gap-5 items-center w-full lg:w-auto">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner shrink-0 ${
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-6 lg:mb-8">
+                  <div className="flex gap-3 sm:gap-5 items-center w-full lg:w-auto">
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-lg sm:text-2xl shadow-inner shrink-0 ${
                       isRejected ? "bg-red-50 text-red-600" : req.status === "Completed" ? "bg-green-50 text-green-600" : "bg-slate-50 text-slate-600"
                     }`}>
-                      {isRejected ? <XCircle size={32} /> : req.status === "Completed" ? <CheckCircle size={32} /> : "SR"}
+                      {isRejected ? <XCircle size={24} className="sm:hidden" /> : req.status === "Completed" ? <CheckCircle size={24} className="sm:hidden" /> : <span className="sm:hidden">SR</span>}
+                      {isRejected ? <XCircle size={32} className="hidden sm:inline" /> : req.status === "Completed" ? <CheckCircle size={32} className="hidden sm:inline" /> : <span className="hidden sm:inline">SR</span>}
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-xl font-black text-slate-900 truncate">{req.projectName}</h3>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <h3 className="text-base sm:text-xl font-black text-slate-900 truncate">{req.projectName}</h3>
                         {isRejected && (
                           <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-widest shrink-0">Rejected</span>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 mt-2">
-                        <span className="text-red-600 bg-red-50 px-2.5 py-1 rounded-md font-mono">{req.id}</span>
-                        <span className="flex items-center gap-1"><User size={14} /> {req.requestor}</span>
-                        <span className="flex items-center gap-1"><Calendar size={14} /> {req.date}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-semibold text-slate-500 mt-2">
+                        <span className="text-red-600 bg-red-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md font-mono">{req.id}</span>
+                        <span className="flex items-center gap-1"><User size={12} /> {req.requestor}</span>
+                        <span className="flex items-center gap-1"><Calendar size={12} /> {req.date}</span>
                       </div>
                     </div>
                   </div>
@@ -680,14 +681,14 @@ const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, on
   const labelClass = "text-[11px] font-black uppercase text-slate-500 tracking-widest mb-1.5 block";
 
   return (
-    <div className="p-4 lg:p-10 max-w-[1400px] mx-auto space-y-10 pb-32">
-      <div className="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-visible relative">
-        <div className="bg-red-600 p-8 lg:p-12 text-white rounded-t-3xl relative overflow-hidden">
+    <div className="p-3 sm:p-6 lg:p-10 max-w-[1400px] mx-auto space-y-6 lg:space-y-10 pb-32">
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-lg border border-slate-100 overflow-visible relative">
+        <div className="bg-red-600 p-5 sm:p-8 lg:p-12 text-white rounded-t-2xl lg:rounded-t-3xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-[40px]"></div>
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <h2 className="text-3xl font-black uppercase tracking-tight">Sourcing Form</h2>
-              <p className="text-red-100 text-xs mt-1.5 font-bold uppercase tracking-widest opacity-90">Material & Service Requisition</p>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight">Sourcing Form</h2>
+              <p className="text-red-100 text-[10px] sm:text-xs mt-1 lg:mt-1.5 font-bold uppercase tracking-widest opacity-90">Material & Service Requisition</p>
             </div>
             <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/20 shadow-lg w-full md:w-80">
               <p className="text-[10px] font-black uppercase tracking-widest mb-2 text-white">ดึงข้อมูลจาก SR เดิม (Copy form)</p>
@@ -712,8 +713,8 @@ const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, on
           </div>
         </div>
 
-        <div className="p-6 lg:p-12 space-y-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-slate-50 p-6 lg:p-8 rounded-2xl border border-slate-100">
+        <div className="p-4 sm:p-6 lg:p-12 space-y-6 lg:space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 bg-slate-50 p-4 sm:p-6 lg:p-8 rounded-2xl border border-slate-100">
             <div className="space-y-5">
               <div className="relative">
                 <label className={labelClass}>Project Code / Name</label>
@@ -846,7 +847,84 @@ const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, on
               </div>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-slate-200 overflow-y-visible pb-32">
+            {/* MOBILE: Cards View */}
+            <div className="lg:hidden space-y-3">
+              {items.map((item, idx) => (
+                <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                      Item #{idx + 1}
+                    </span>
+                    <button
+                      onClick={() => removeItemRow(idx)}
+                      className="text-red-400 p-1.5 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Material No.</label>
+                    <input
+                      className="w-full border border-slate-200 rounded-lg p-2.5 font-mono text-red-600 font-bold text-xs uppercase mt-1"
+                      placeholder="Type code..."
+                      value={item.code || ""}
+                      onChange={(e) => handleItemChange(idx, "code", e.target.value)}
+                      onFocus={() => { setActiveItemIdx(idx); setSearchItemTerm(item.code || ""); }}
+                      onBlur={() => setTimeout(() => setActiveItemIdx(null), 250)}
+                    />
+                    {activeItemIdx === idx && filteredDB.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-slate-200 z-[100] max-h-60 overflow-y-auto">
+                        {filteredDB.map((p) => (
+                          <button
+                            key={p.code}
+                            className="w-full text-left p-3 hover:bg-red-50 border-b border-slate-50 last:border-0"
+                            onMouseDown={(e) => { e.preventDefault(); selectProduct(idx, p); }}
+                          >
+                            <div className="font-black text-xs">{p.code}</div>
+                            <div className="text-[10px] font-bold opacity-70 uppercase truncate">{p.name || "-"}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Description</label>
+                    <input
+                      className="w-full border border-slate-200 rounded-lg p-2.5 text-xs font-bold uppercase mt-1"
+                      value={item.name || ""}
+                      onChange={(e) => handleItemChange(idx, "name", e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Brand</label>
+                      <input className="w-full border border-slate-200 rounded-lg p-2.5 text-xs uppercase mt-1" value={item.brand || ""} onChange={(e) => handleItemChange(idx, "brand", e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Model</label>
+                      <input className="w-full border border-slate-200 rounded-lg p-2.5 text-xs uppercase mt-1" value={item.model || ""} onChange={(e) => handleItemChange(idx, "model", e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Qty</label>
+                      <input type="number" className="w-full border border-slate-200 rounded-lg p-2.5 text-center font-bold text-sm mt-1" value={item.qty || ""} onChange={(e) => handleItemChange(idx, "qty", e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">UOM</label>
+                      <input className="w-full border border-slate-200 rounded-lg p-2.5 text-center font-bold text-xs uppercase text-red-600 mt-1" value={item.uom || ""} onChange={(e) => handleItemChange(idx, "uom", e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Date</label>
+                      <input type="date" className="w-full border border-slate-200 rounded-lg p-2 text-[10px] mt-1" value={item.reqDate || ""} onChange={(e) => handleItemChange(idx, "reqDate", e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* DESKTOP: Table View */}
+            <div className="hidden lg:block overflow-x-auto rounded-2xl border border-slate-200 overflow-y-visible pb-32">
               <table className="w-full min-w-[1200px] border-collapse bg-white">
                 <thead className="bg-slate-900 text-white uppercase font-bold tracking-widest text-center text-xs">
                   <tr>
@@ -1056,7 +1134,7 @@ const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploa
   };
 
   return (
-    <div className="p-6 lg:p-12 max-w-6xl mx-auto space-y-8 pb-32">
+    <div className="p-4 sm:p-6 lg:p-12 max-w-6xl mx-auto space-y-6 lg:space-y-8 pb-32">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-slate-900 rounded-3xl p-8 text-white flex flex-col justify-between items-start gap-6 shadow-lg relative overflow-hidden border-b-[6px] border-red-600">
           <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-[50px]"></div>
@@ -1526,6 +1604,14 @@ export default function App() {
           {message.type === "error" ? <XCircle size={18} /> : <CheckCircle size={18} />}
           {String(message.text)}
         </div>
+      )}
+
+      {/* Sidebar Overlay (Mobile) */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="lg:hidden fixed inset-0 z-[75] bg-black/50 backdrop-blur-sm no-print"
+        />
       )}
 
       <aside className={`fixed inset-y-0 left-0 z-[80] w-64 bg-slate-900 text-slate-300 transition-transform lg:relative lg:translate-x-0 ${
