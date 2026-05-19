@@ -203,8 +203,7 @@ function md5(string) {
 }
 
 // --- CONFIG & INITIAL DATA ---
-const LOGO_URL =
-  "https://kasetphandgroup.com/wp-content/uploads/2024/08/kasetphand-group.png";
+const LOGO_URL = "/logo.png";
 
 const ROLES = {
   ENGINEER: "Engineer Onsite (Philippines)",
