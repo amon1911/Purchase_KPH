@@ -474,12 +474,12 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
             return (
               <div
                 key={req.id}
-                className={`bg-white rounded-2xl lg:rounded-3xl border p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
+                className={`bg-white rounded-2xl lg:rounded-3xl border p-4 sm:p-6 lg:p-8 transition-all duration-300 overflow-hidden ${
                   isMyTurn ? "border-red-500 shadow-xl ring-[4px] ring-red-50" : "border-slate-100 shadow-sm"
                 }`}
               >
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-6 lg:mb-8">
-                  <div className="flex gap-3 sm:gap-5 items-center w-full lg:w-auto">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-6 lg:mb-8 min-w-0">
+                  <div className="flex gap-3 sm:gap-5 items-center w-full lg:w-auto min-w-0">
                     <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-lg sm:text-2xl shadow-inner shrink-0 ${
                       isRejected ? "bg-red-50 text-red-600" : req.status === "Completed" ? "bg-green-50 text-green-600" : "bg-slate-50 text-slate-600"
                     }`}>
