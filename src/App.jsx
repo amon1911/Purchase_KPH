@@ -203,7 +203,7 @@ function md5(string) {
 }
 
 // --- CONFIG & INITIAL DATA ---
-const LOGO_URL = "/logo.png";
+const LOGO_URL = "/icon.png";
 
 const ROLES = {
   ENGINEER: "Engineer Onsite (Philippines)",
