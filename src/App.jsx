@@ -441,7 +441,7 @@ const LoginScreen = ({ usersList, onLogin, onRegister, refreshUsers }) => {
 };
 
 // ----------------------------------------------------------------------
-// 2. DASHBOARD COMPONENT
+// 2. DASHBOARD COMPONENT ( FIXED MOBILE WRAPPING BUG )
 // ----------------------------------------------------------------------
 const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq, setCloningData, setActiveTab }) => {
   return (
@@ -478,29 +478,37 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
                   isMyTurn ? "border-red-500 shadow-xl ring-[4px] ring-red-50" : "border-slate-100 shadow-sm"
                 }`}
               >
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-6 lg:mb-8">
-                  <div className="flex gap-3 sm:gap-5 items-center w-full lg:w-auto">
+                {/* --- แก้ไขโครงสร้าง Flex ตรง Header ของ Card ป้องกันข้อความยาวดันทะลุจอ --- */}
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-6 lg:mb-8 w-full min-w-0">
+                  <div className="flex gap-3 sm:gap-5 items-start sm:items-center w-full min-w-0 lg:flex-1">
                     <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-lg sm:text-2xl shadow-inner shrink-0 ${
                       isRejected ? "bg-red-50 text-red-600" : req.status === "Completed" ? "bg-green-50 text-green-600" : "bg-slate-50 text-slate-600"
                     }`}>
                       {isRejected ? <XCircle size={24} className="sm:hidden" /> : req.status === "Completed" ? <CheckCircle size={24} className="sm:hidden" /> : <span className="sm:hidden">SR</span>}
                       {isRejected ? <XCircle size={32} className="hidden sm:inline" /> : req.status === "Completed" ? <CheckCircle size={32} className="hidden sm:inline" /> : <span className="hidden sm:inline">SR</span>}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <h3 className="text-base sm:text-xl font-black text-slate-900 truncate">{req.projectName}</h3>
+                    
+                    <div className="min-w-0 flex-1 w-full">
+                      <div className="flex items-center gap-2 sm:gap-3 w-full">
+                        <h3 className="text-base sm:text-xl font-black text-slate-900 truncate flex-1 min-w-0" title={req.projectName}>
+                          {req.projectName}
+                        </h3>
                         {isRejected && (
                           <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-widest shrink-0">Rejected</span>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-semibold text-slate-500 mt-2">
-                        <span className="text-red-600 bg-red-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md font-mono">{req.id}</span>
-                        <span className="flex items-center gap-1"><User size={12} /> {req.requestor}</span>
-                        <span className="flex items-center gap-1"><Calendar size={12} /> {req.date}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs font-semibold text-slate-500 mt-2 w-full">
+                        <span className="text-red-600 bg-red-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md font-mono shrink-0">{req.id}</span>
+                        <span className="flex items-center gap-1 shrink-0 min-w-0">
+                          <User size={12} className="shrink-0" /> 
+                          <span className="truncate max-w-[120px] sm:max-w-[200px]">{req.requestor}</span>
+                        </span>
+                        <span className="flex items-center gap-1 shrink-0"><Calendar size={12} className="shrink-0" /> {req.date}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-3 w-full lg:w-auto">
+                  
+                  <div className="flex gap-3 w-full lg:w-auto shrink-0 mt-2 lg:mt-0">
                     <button
                       onClick={() => setPrintingReq(req)}
                       className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all"
@@ -635,7 +643,7 @@ const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, on
 
   const handleProjectChange = (val) => {
     setHeader({ ...header, projectName: val });
-    setSearchProjTerm(val);
+    SearchProjTerm(val);
     setActiveProjDrop(true);
   };
 
@@ -1064,7 +1072,7 @@ const SourcingForm = ({ currentUser, itemDatabase, projectDatabase, requests, on
 };
 
 // ----------------------------------------------------------------------
-// 4. DATABASE MANAGER (UI เดิม + Save to Supabase)
+// 4. DATABASE MANAGER
 // ----------------------------------------------------------------------
 const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploadProjects, notify }) => {
   const itemInputRef = useRef(null);
@@ -1198,10 +1206,10 @@ const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploa
             <input placeholder="ค้นหา Material Code หรือ ชื่อ..." className="outline-none text-xs font-semibold w-full" value={searchItem} onChange={(e) => setSearchItem(e.target.value)} />
           </div>
         </div>
-        <div className="overflow-y-auto max-h-[350px]">
+        <div className="overflow-y-auto overflow-x-auto max-h-[350px]">
           <table className="w-full border-collapse text-xs">
             <thead className="bg-white sticky top-0 z-10 font-bold uppercase text-slate-500 border-b border-slate-200 text-[10px]">
-              <tr><th className="p-4 text-left">Code</th><th className="p-4 text-left">Description</th></tr>
+              <tr><th className="p-4 text-left min-w-[120px]">Code</th><th className="p-4 text-left">Description</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredItems.slice(0, 50).map((i, idx) => (
@@ -1226,10 +1234,10 @@ const DatabaseManager = ({ itemDatabase, projectDatabase, onUploadItems, onUploa
             <input placeholder="ค้นหา Project Code หรือ ชื่อ..." className="outline-none text-xs font-semibold w-full" value={searchProj} onChange={(e) => setSearchProj(e.target.value)} />
           </div>
         </div>
-        <div className="overflow-y-auto max-h-[350px]">
+        <div className="overflow-y-auto overflow-x-auto max-h-[350px]">
           <table className="w-full border-collapse text-xs">
             <thead className="bg-white sticky top-0 z-10 font-bold uppercase text-slate-500 border-b border-slate-200 text-[10px]">
-              <tr><th className="p-4 text-left">Project Code</th><th className="p-4 text-left">Project Name</th><th className="p-4 text-left">Address</th></tr>
+              <tr><th className="p-4 text-left min-w-[120px]">Project Code</th><th className="p-4 text-left">Project Name</th><th className="p-4 text-left">Address</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredProjects.slice(0, 50).map((p, idx) => (
@@ -1257,7 +1265,6 @@ const PrintView = ({ req, onClose }) => {
   const [downloading, setDownloading] = useState(false);
   const [logoBase64, setLogoBase64] = useState(LOGO_URL);
 
-  // โหลด logo เป็น base64 ตอน mount เพื่อให้ html2canvas ใช้ได้
   useEffect(() => {
     const loadLogo = async () => {
       try {
@@ -1275,7 +1282,6 @@ const PrintView = ({ req, onClose }) => {
 
   if (!req) return null;
 
-  // หาคน approve เเต่ละ stage
   const findApprover = (role) => {
     const approval = (req.history || []).find(
       (h) => h.action === "Approved" && h.role === role
@@ -1284,7 +1290,6 @@ const PrintView = ({ req, onClose }) => {
     return null;
   };
 
-  // map: role → ใครเป็นคน approve
   const approversByRole = {};
   const submittedBy = (req.history || []).find((h) => h.action === "Submitted");
   if (submittedBy) approversByRole[ROLES.ENGINEER] = submittedBy;
@@ -1310,7 +1315,6 @@ const PrintView = ({ req, onClose }) => {
         });
       }
 
-      // รอให้ logo โหลดเป็น base64 เสร็จก่อน (ถ้ายังไม่เสร็จ)
       let finalLogo = logoBase64;
       if (!finalLogo.startsWith("data:")) {
         try {
@@ -1337,7 +1341,6 @@ const PrintView = ({ req, onClose }) => {
           allowTaint: true,
           logging: false,
           onclone: (clonedDoc) => {
-            // เเทน logo ใน cloned DOM ด้วย base64
             const imgs = clonedDoc.querySelectorAll("img");
             imgs.forEach((img) => {
               if (img.alt === "Logo") {
@@ -1504,7 +1507,6 @@ async function registerUser({ name, role, pin }) {
   return data;
 }
 
-// Convert DB row → app object
 function rowToRequest(row) {
   return {
     id: row.id,
@@ -1564,16 +1566,13 @@ export default function App() {
   const [message, setMessage] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
 
-  // คำนวณ notifications สำหรับ currentUser
   const notifications = useMemo(() => {
     if (!currentUser) return { pending: [], recent: [] };
 
-    // 1. รออนุมัติ (currentStage = role + Pending)
     const pending = requests.filter(
       (r) => r.status === "Pending" && r.currentStage === currentUser.role
     );
 
-    // 2. Approve/Reject ล่าสุดจาก SR ที่เราเคยเกี่ยวข้อง (เป็นคนสร้าง หรือ approve)
     const recent = requests
       .filter((r) => {
         if (r.status === "Pending") return false;
@@ -1593,7 +1592,6 @@ export default function App() {
     setTimeout(() => setMessage(null), 4000);
   };
 
-  // Load initial data
   const refreshUsers = async () => {
     try {
       const data = await loadUsers();
@@ -1640,7 +1638,6 @@ export default function App() {
       refreshMaterials();
       refreshProjects();
 
-      // Auto-refresh ทุก 15 วินาที เพื่อให้ notification อัพเดทเเบบ realtime
       const interval = setInterval(() => {
         refreshRequests();
       }, 15000);
@@ -1649,7 +1646,6 @@ export default function App() {
     }
   }, [isAuthenticated]);
 
-  // Login handlers
   const handleLogin = async (userId, pin) => {
     const user = await loginUser(userId, pin);
     if (user) {
@@ -1663,7 +1659,6 @@ export default function App() {
     return await registerUser(data);
   };
 
-  // Save Request → Supabase
   const handleSaveRequest = async (header, items) => {
     const prefix = `SR-${new Date().getFullYear().toString().slice(-2)}${(new Date().getMonth() + 1).toString().padStart(2, "0")}-`;
     const srId = `${prefix}${String(requests.filter((r) => r.id.startsWith(prefix)).length + 1).padStart(3, "0")}`;
@@ -1701,7 +1696,6 @@ export default function App() {
     notify(`สร้าง SR เลขที่ ${srId} สำเร็จ!`, "success");
   };
 
-  // Approve → Supabase
   const handleApprove = async (id) => {
     const req = requests.find((r) => r.id === id);
     if (!req) return;
@@ -1726,7 +1720,6 @@ export default function App() {
     notify("อนุมัติสำเร็จ", "success");
   };
 
-  // Reject → Supabase
   const handleReject = async (id) => {
     if (!window.confirm("คุณต้องการปฏิเสธรายการนี้ใช่หรือไม่?")) return;
     const req = requests.find((r) => r.id === id);
@@ -1747,7 +1740,6 @@ export default function App() {
     notify("ปฏิเสธสำเร็จ", "error");
   };
 
-  // Upload Materials → Supabase
   const handleUploadItems = async (items) => {
     if (!items.length) return;
     const { error } = await supabase.from("materials_db").upsert(items, { onConflict: "code" });
@@ -1759,7 +1751,6 @@ export default function App() {
     notify(`✅ นำเข้าข้อมูลสินค้าสำเร็จ ${items.length} รายการ`, "success");
   };
 
-  // Upload Projects → Supabase
   const handleUploadProjects = async (projects) => {
     if (!projects.length) return;
     const { error } = await supabase.from("projects_db").upsert(projects, { onConflict: "code" });
@@ -1793,7 +1784,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Sidebar Overlay (Mobile) */}
       {isSidebarOpen && (
         <div
           onClick={() => setIsSidebarOpen(false)}
@@ -1864,7 +1854,6 @@ export default function App() {
             </div>
             <div className="w-px h-8 bg-slate-200 mx-2"></div>
 
-            {/* Notification Bell */}
             <div className="relative">
               <button
                 onClick={() => setShowNotif(!showNotif)}
@@ -1878,7 +1867,6 @@ export default function App() {
                 )}
               </button>
 
-              {/* Dropdown */}
               {showNotif && (
                 <>
                   <div
@@ -1894,7 +1882,6 @@ export default function App() {
                     </div>
 
                     <div className="overflow-y-auto flex-1">
-                      {/* รออนุมัติ */}
                       {notifications.pending.length > 0 && (
                         <div>
                           <div className="px-4 py-2 bg-red-50 text-red-700 text-[10px] font-black uppercase tracking-widest border-b border-red-100">
@@ -1906,7 +1893,6 @@ export default function App() {
                               onClick={() => {
                                 setShowNotif(false);
                                 setActiveTab("dashboard");
-                                // Scroll to top
                                 setTimeout(() => window.scrollTo(0, 0), 100);
                               }}
                               className="w-full text-left p-3 hover:bg-red-50 transition-colors border-b border-slate-50 flex gap-3 items-start"
@@ -1930,7 +1916,6 @@ export default function App() {
                         </div>
                       )}
 
-                      {/* Approve/Reject ล่าสุด */}
                       {notifications.recent.length > 0 && (
                         <div>
                           <div className="px-4 py-2 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-widest border-b border-slate-100">
@@ -1971,7 +1956,6 @@ export default function App() {
                         </div>
                       )}
 
-                      {/* Empty state */}
                       {notifications.pending.length === 0 && notifications.recent.length === 0 && (
                         <div className="p-10 text-center">
                           <Bell className="mx-auto text-slate-200 mb-3" size={40} />
