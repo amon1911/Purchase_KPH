@@ -520,17 +520,18 @@ const Dashboard = ({ requests, currentUser, onApprove, onReject, setPrintingReq,
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 mb-6 px-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 mb-6">
                   {APPROVAL_FLOW.map((role, idx) => {
                     const done = (req.status === "Completed" || idx < stepIndex) && !isRejected;
                     const active = req.status === "Pending" && idx === stepIndex;
                     const rejHere = isRejected && idx === stepIndex;
                     return (
-                      <div key={role} className="flex items-center sm:block gap-3 sm:gap-0 sm:space-y-2">
-                        <div className={`h-2 rounded-full transition-all duration-500 flex-1 sm:flex-none sm:w-full ${
-                          rejHere ? "bg-red-500 animate-pulse" : done ? "bg-green-500" : active ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-slate-100"
+                      <div key={role} className="flex items-center gap-3 sm:block sm:space-y-2">
+                        {/* Mobile: เเถบสีอยู่ซ้าย / Desktop: อยู่บน */}
+                        <div className={`h-2 w-12 sm:w-full rounded-full transition-all duration-500 shrink-0 ${
+                          rejHere ? "bg-red-500 animate-pulse" : done ? "bg-green-500" : active ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-slate-200"
                         }`}></div>
-                        <span className={`block text-[10px] font-bold uppercase tracking-widest shrink-0 sm:shrink ${
+                        <span className={`flex-1 text-[10px] font-bold uppercase tracking-widest leading-tight ${
                           rejHere ? "text-red-600" : done ? "text-green-600" : active ? "text-red-600" : "text-slate-400"
                         }`}>
                           {role}
@@ -1280,12 +1281,31 @@ const PrintView = ({ req, onClose }) => {
         });
       }
 
+      // โหลด logo เป็น base64 ก่อน เพื่อป้องกัน CORS
+      const logoImg = document.getElementById("pdf-logo");
+      if (logoImg && !logoImg.src.startsWith("data:")) {
+        try {
+          const response = await fetch(LOGO_URL, { mode: "cors" });
+          const blob = await response.blob();
+          const base64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          logoImg.src = base64;
+          // รอให้ภาพโหลดเสร็จก่อน
+          await new Promise((r) => setTimeout(r, 200));
+        } catch (e) {
+          console.warn("Logo load failed, using text fallback");
+        }
+      }
+
       const element = document.getElementById("print-area");
       const opt = {
         margin: 10,
         filename: `${req.id}_SR_${req.projectName?.split(" ")[0] || "document"}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
+        html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
       await window.html2pdf().from(element).set(opt).save();
@@ -1317,7 +1337,7 @@ const PrintView = ({ req, onClose }) => {
         <div id="print-area" className="p-6 sm:p-8 lg:p-12 overflow-y-auto bg-white text-black font-sans text-xs">
           <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
             <div className="flex items-center gap-4">
-              <img src={LOGO_URL} alt="Logo" className="h-12 w-auto" />
+              <img id="pdf-logo" src={LOGO_URL} alt="Logo" crossOrigin="anonymous" className="h-12 w-auto" />
               <div>
                 <h1 className="text-xl font-black uppercase">Kasetphand Group</h1>
                 <p className="text-[10px] font-bold uppercase mt-0.5">Sourcing Requisition (SR)</p>
